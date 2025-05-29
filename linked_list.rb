@@ -1,7 +1,8 @@
 class Node
-  attr_accessor :value, :next_node
+  attr_accessor :key, :value, :next_node
 
   def initialize
+    @key = nil
     @value = nil
     @next_node = nil
   end
@@ -12,11 +13,13 @@ class LinkedList
     @head = Node.new
   end
 
-  def append(value)
+  def append(key, value)
     if @head.value.nil?
+      @head.key = key
       @head.value = value
     elsif @head.next_node.nil?
       node = Node.new
+      node.key = key
       node.value = value
       @head.next_node = node
     else
@@ -25,6 +28,7 @@ class LinkedList
         node = node.next_node
       end
       new_node = Node.new
+      node.key = key
       new_node.value = value
       node.next_node = new_node
     end
@@ -101,6 +105,38 @@ class LinkedList
     return pop_node
   end
 
+  def each
+    node = @head
+    size.times do
+      yield(node)
+      node = node.next_node
+    end
+  end
+
+  def remove(key)
+    node = @head
+    previuos_node = nil
+
+    if node.key.eql?(key)
+      @head = @head.next_node
+    else
+      while !node.next_node.nil?
+        previuos_node = node
+        node = node.next_node
+
+        if node.key.eql?(key)
+          previuos_node.next_node = node.next_node
+          return "Deleted"
+        elsif previuos_node.key.eql?(key)
+          previuos_node = node
+          return "Deleted"
+        end
+      end
+    end
+
+    "No key has been found"
+  end
+
   def contains?(value)
     node = @head
     
@@ -117,18 +153,30 @@ class LinkedList
 
   def find(value)
     node = @head
-    index = 0
 
     while !node.nil?
       if node.value.eql?(value)
-        return index
+        return node
       end
 
       node = node.next_node
-      index = index + 1
     end
 
     return "Node not found"
+  end
+
+  def find_key(key)
+    node = @head
+
+    while !node.nil?
+      if node.key.eql?(key)
+        return node
+      end
+
+      node = node.next_node
+    end
+
+    return nil
   end
 
   def to_s
